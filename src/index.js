@@ -3,18 +3,34 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 class Square extends React.Component {
+
   render() {
     return (
-      <button className="square">
-        {/* TODO */}
+      // onClickプロパティにアラートを出す関数を渡す
+      <button className="square"
+        // onClickハンドラ内でthis.setStateを呼び出すことで、<button>がクリックされたら、常に再レンダーするようの伝えている
+        onClick={() => this.props.onClick()}>
+        { this.props.value }
       </button>
     );
   }
 }
 
 class Board extends React.Component {
+  // コンストラクタを追加し、初期stateとして9個のマス目に対応する9個のnull値を与える
+  constructor(props) {
+    super(props);
+    this.state = {
+      squares: Array(9).fill(null),
+    }
+  }
   renderSquare(i) {
-    return <Square />;
+    return (
+      <Square
+        value={this.state.squares[i]}
+        // BoardからSquareに関数を渡す
+        onClick={() => this.handleClick(i)}
+        />);
   }
 
   render() {
