@@ -5,7 +5,7 @@ import './index.css';
 function Square(props){
   return (
     // onClickプロパティにアラートを出す関数を渡す
-    <button className="square"
+    <button className={`square ${props.isHighlight ? 'highlight' : ''}`}
       // onClickハンドラ内でthis.setStateを呼び出すことで、<button>がクリックされたら、常に再レンダーするようの伝えている
       onClick={props.onClick}>
       { props.value }
@@ -16,12 +16,13 @@ function Square(props){
 
 
 class Board extends React.Component {
-  renderSquare(i) {
+  renderSquare(i, isHighlight = false ) {
     return (
       <Square
         value={this.props.squares[i]}
         // BoardからSquareに関数を渡す
-        onClick={() => this.props.onClick(i)}  key={ i }
+        onClick={() => this.props.onClick(i)} key={i}
+        isHighlight={isHighlight}
       />
     );
   }
@@ -38,7 +39,7 @@ class Board extends React.Component {
                   Array(3).fill(0).map((col, j) => {
                     console.log(j)
                           return (
-                      this.renderSquare(i * 3 + j)
+                      this.renderSquare(i * 3 + j, this.props.highlightCells.indexOf(i * 3 + j) !== -1)
                     )
                   })
                 }
@@ -99,7 +100,7 @@ class Game extends React.Component {
   render() {
     const history = this.state.history
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const setElement = calculateWinner(current.squares);
 
     const moves = history.map((step, move) => {
       const desc = move ?
@@ -116,11 +117,9 @@ class Game extends React.Component {
       );
     })
 
-
-
     let status;
-    if (winner) {
-      status = 'Winner:' + winner
+    if (setElement) {
+      status = 'Winner:' + setElement.winner
     } else {
       status = 'Next Player:' + (this.state.xIsNext ? 'X' : '0')
     }
@@ -130,7 +129,8 @@ class Game extends React.Component {
         <div className="game-board">
           <Board
             squares={current.squares}
-            onClick={ (i) => this.handleClick(i) }
+            onClick={(i) => this.handleClick(i)}
+            highlightCells={ setElement ? setElement.line : []}
           />
         </div>
         <div className="game-info">
@@ -164,7 +164,10 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return {
+        winner: squares[a],
+        line: [a,b,c]
+      }
     }
   }
   return null;
