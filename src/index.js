@@ -70,6 +70,7 @@ class Game extends React.Component {
     const current = history[history.length - 1 ];
     const squares = current.squares.slice();
     if (calculateWinner(squares) || squares[i]) {
+      debugger
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O'
@@ -119,7 +120,11 @@ class Game extends React.Component {
 
     let status;
     if (setElement) {
-      status = 'Winner:' + setElement.winner
+      if (setElement.isDraw) {
+        status = 'Draw';
+      } else {
+        status = 'Winner:' + setElement.winner
+      }
     } else {
       status = 'Next Player:' + (this.state.xIsNext ? 'X' : '0')
     }
@@ -165,9 +170,18 @@ function calculateWinner(squares) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
       return {
+        isDraw: false,
         winner: squares[a],
         line: [a,b,c]
       }
+    }
+  }
+
+  if (squares.filter((e) => !e).length === 0) {
+    return {
+      isDraw: true,
+      winner: null,
+      line: []
     }
   }
   return null;
