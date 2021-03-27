@@ -21,7 +21,7 @@ class Board extends React.Component {
       <Square
         value={this.props.squares[i]}
         // BoardからSquareに関数を渡す
-        onClick={() => this.props.onClick(i)}
+        onClick={() => this.props.onClick(i)}  key={ i }
       />
     );
   }
@@ -29,21 +29,23 @@ class Board extends React.Component {
   render() {
     return (
       <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+        {
+          Array(3).fill(0).map((row, i) => {
+            console.log(i)
+            return (
+              <div className="board-row" key={i}>
+                {
+                  Array(3).fill(0).map((col, j) => {
+                    console.log(j)
+                          return (
+                      this.renderSquare(i * 3 + j)
+                    )
+                  })
+                }
+              </div>
+            )
+          })
+        }
       </div>
     );
   }
@@ -58,6 +60,7 @@ class Game extends React.Component {
       }],
       xIsNext: true,
       stepNumber: 0,
+      isAsc: true,
     }
   }
 
@@ -86,6 +89,13 @@ class Game extends React.Component {
       xIsNext: (step % 2) === 0,
     })
   }
+  
+  toggleAsc() {
+    this.setState({
+      isAsc: !this.state.isAsc
+    })
+  }
+
   render() {
     const history = this.state.history
     const current = history[this.state.stepNumber];
@@ -106,6 +116,8 @@ class Game extends React.Component {
       );
     })
 
+
+
     let status;
     if (winner) {
       status = 'Winner:' + winner
@@ -122,8 +134,9 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-          <div>{ status }</div>
-          <ol>{ moves }</ol>
+          <div>{status}</div>
+          <div><button onClick={ () => this.toggleAsc()}>ASC⇔DESC</button></div>
+          <ol>{this.state.isAsc ? moves : moves.reverse() }</ol>
         </div>
       </div>
     );
